@@ -3,7 +3,7 @@
 
 typedef enum { LEPT_NULL,
                LEPT_FALSE,
-               LEPT_TURE,
+               LEPT_TRUE,
                LEPT_NUMBER,
                LEPT_STRING,
                LEPT_ARRAY,
