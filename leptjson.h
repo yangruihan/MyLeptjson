@@ -14,6 +14,11 @@ typedef struct
     lept_type type;
 } lept_value;
 
+typedef struct
+{
+    const char *json;
+} lept_context;
+
 enum
 {
     LEPT_PARSE_OK = 0,
