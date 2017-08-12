@@ -20,7 +20,7 @@ static void lept_parse_whitespace(lept_context *c)
 static int check_root_is_not_singular(lept_context *c, lept_value *v)
 {
     lept_parse_whitespace(&c);
-    if (*c->json != '\0' && *(c->json + 1) != '\0')
+    if (*c->json != '\0')
     {
         v->type = LEPT_NULL;
         return LEPT_PARSE_ROOT_NOT_SINGULAR;
@@ -35,7 +35,7 @@ static int lept_parse_null(lept_context *c, lept_value *v)
         return LEPT_PARSE_INVALID_VALUE;
     c->json += 3;
     v->type = LEPT_NULL;
-    return check_root_is_not_singular(c, v);
+    return LEPT_PARSE_OK;
 }
 
 static int lept_parse_true(lept_context *c, lept_value *v)
@@ -45,7 +45,7 @@ static int lept_parse_true(lept_context *c, lept_value *v)
         return LEPT_PARSE_INVALID_VALUE;
     c->json += 3;
     v->type = LEPT_TURE;
-    return check_root_is_not_singular(c, v);
+    return LEPT_PARSE_OK;
 }
 
 static int lept_parse_false(lept_context *c, lept_value *v)
@@ -55,7 +55,7 @@ static int lept_parse_false(lept_context *c, lept_value *v)
         return LEPT_PARSE_INVALID_VALUE;
     c->json += 4;
     v->type = LEPT_FALSE;
-    return check_root_is_not_singular(c, v);
+    return LEPT_PARSE_OK;
 }
 
 static int lept_parse_value(lept_context *c, lept_value *v)
@@ -82,7 +82,10 @@ int lept_parse(lept_value *v, const char *json)
     c.json = json;
     v->type = LEPT_NULL;
     lept_parse_whitespace(&c);
-    return lept_parse_value(&c, v);
+    int result = lept_parse_value(&c, v);
+    if (result == LEPT_PARSE_OK)
+        result = check_root_is_not_singular(&c, v);
+    return result;
 }
 
 lept_type lept_get_type(const lept_value *v)
