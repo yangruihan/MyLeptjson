@@ -1,3 +1,8 @@
+#ifdef _WINDOWS
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#endif
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -153,6 +158,42 @@ static int lept_parse_string(lept_context *c, lept_value *v)
             lept_set_string(v, (const char *)lept_context_pop(c, len), len);
             c->json = p;
             return LEPT_PARSE_OK;
+        case '\\':
+            switch (*p++)
+            {
+            case '\\':
+                PUTC(c, '\\');
+                break;
+            case '\"':
+                PUTC(c, '\"');
+                break;
+            case '/':
+                PUTC(c, '/');
+                break;
+            case 'b':
+                PUTC(c, '\b');
+                break;
+            case 'f':
+                PUTC(c, '\f');
+                break;
+            case 'n':
+                PUTC(c, '\n');
+                break;
+            case 't':
+                PUTC(c, '\t');
+                break;
+            case 'r':
+                PUTC(c, '\r');
+                break;
+            default:
+                if ((unsigned char)ch < 0x20)
+                {
+                    c->top = head;
+                    return LEPT_PARSE_INVALID_STRING_CHAR;
+                }
+                PUTC(c, ch);
+            }
+            break;
         case '\0':
             c->top = head;
             return LEPT_PARSE_MISS_QUOTATION_MARK;
@@ -211,14 +252,11 @@ int lept_get_boolean(const lept_value *v)
     return v->type == LEPT_TRUE;
 }
 
-void lept_set_boolean(const lept_value *v, int b)
+void lept_set_boolean(lept_value *v, int b)
 {
     CHECK_NULL(v);
     lept_free(v);
-    if (b)
-        v->type == LEPT_TRUE;
-    else
-        v->type == LEPT_FALSE;
+    v->type = b ? LEPT_TRUE : LEPT_FALSE;
 }
 
 double lept_get_number(const lept_value *v)
