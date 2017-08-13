@@ -38,8 +38,10 @@ enum
     LEPT_PARSE_ROOT_NOT_SINGULAR,
     LEPT_PARSE_NUMBER_TOO_BIG,
     LEPT_PARSE_MISS_QUOTATION_MARK,
-	LEPT_PARSE_INVALID_STRING_ESCAPE,
-	LEPT_PARSE_INVALID_STRING_CHAR
+    LEPT_PARSE_INVALID_STRING_ESCAPE,
+    LEPT_PARSE_INVALID_STRING_CHAR,
+    LEPT_PARSE_INVALID_UNICODE_SURROGATE,
+    LEPT_PARSE_INVALID_UNICODE_HEX
 };
 
 #define lept_init(v)           \
@@ -54,6 +56,8 @@ static void lept_parse_whitespace(lept_context *c);
 static int check_root_is_not_singular(lept_context *c, lept_value *v);
 static int lept_parse_literal(lept_context *c, lept_value *v, char *expect, lept_type type);
 static int lept_parse_number(lept_context *c, lept_value *v);
+static const char *lept_parse_hex4(const char *p, unsigned *u);
+static void lept_encode_utf8(lept_context *c, unsigned u);
 static int lept_parse_string(lept_context *c, lept_value *v);
 static int lept_parse_value(lept_context *c, lept_value *v);
 
@@ -62,7 +66,7 @@ int lept_parse(lept_value *v, const char *json);
 lept_type lept_get_type(const lept_value *v);
 
 int lept_get_boolean(const lept_value *v);
-void lept_set_boolean(const lept_value *v, int b);
+void lept_set_boolean(lept_value *v, int b);
 
 double lept_get_number(const lept_value *v);
 void lept_set_number(lept_value *v, double n);
