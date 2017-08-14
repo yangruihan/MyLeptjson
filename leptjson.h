@@ -111,8 +111,16 @@ lept_value *lept_get_object_value(const lept_value *v, size_t index);
 
 void lept_free(lept_value *v);
 
+static void lept_stringify_string(lept_context *c, const char *s, size_t len);
+static void lept_stringify_value(lept_context *c, const lept_value *v);
+char *lept_stringify(const lept_value *v, size_t *length);
+
 #ifndef LEPT_PARSE_STACK_INIT_SIZE
 #define LEPT_PARSE_STACK_INIT_SIZE 256
+#endif
+
+#ifndef LEPT_PARSE_STRINGIFY_INIT_SIZE
+#define LEPT_PARSE_STRINGIFY_INIT_SIZE 256
 #endif
 
 static void *lept_context_push(lept_context *c, size_t size);
