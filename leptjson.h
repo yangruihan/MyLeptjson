@@ -10,9 +10,15 @@ typedef enum { LEPT_NULL,
                LEPT_OBJECT } lept_type;
 
 typedef struct lept_value lept_value;
+typedef struct lept_member lept_member;
 struct lept_value
 {
     union {
+        struct
+        {
+            lept_member *m;
+            size_t size;
+        } o;
         struct
         {
             lept_value *e;
@@ -27,6 +33,13 @@ struct lept_value
     } u;
 
     lept_type type;
+};
+
+struct lept_member
+{
+    char *k;
+    size_t klen;
+    lept_value v;
 };
 
 typedef struct
@@ -48,7 +61,10 @@ enum
     LEPT_PARSE_INVALID_STRING_CHAR,
     LEPT_PARSE_INVALID_UNICODE_SURROGATE,
     LEPT_PARSE_INVALID_UNICODE_HEX,
-    LEPT_PARSE_MISS_COMMA_OR_SQUARE_BRACKET
+    LEPT_PARSE_MISS_COMMA_OR_SQUARE_BRACKET,
+    LEPT_PARSE_MISS_KEY,
+    LEPT_PARSE_MISS_COLON,
+    LEPT_PARSE_MISS_COMMA_OR_CURLY_BRACKET
 };
 
 #define lept_init(v)           \
@@ -65,7 +81,9 @@ static int lept_parse_literal(lept_context *c, lept_value *v, char *expect, lept
 static int lept_parse_number(lept_context *c, lept_value *v);
 static const char *lept_parse_hex4(const char *p, unsigned *u);
 static void lept_encode_utf8(lept_context *c, unsigned u);
+static int lept_parse_string_raw(lept_context *c, char **str, size_t *len);
 static int lept_parse_string(lept_context *c, lept_value *v);
+static int lept_parse_object(lept_context *c, lept_value *v);
 static int lept_parse_value(lept_context *c, lept_value *v);
 
 int lept_parse(lept_value *v, const char *json);
@@ -84,7 +102,12 @@ void lept_set_string(lept_value *v, const char *s, size_t len);
 
 size_t lept_get_array_size(const lept_value *v);
 lept_value *lept_get_array_element(const lept_value *v, size_t index);
-static int lept_parse_array(lept_context* c, lept_value* v);
+static int lept_parse_array(lept_context *c, lept_value *v);
+
+size_t lept_get_object_size(const lept_value *v);
+const char *lept_get_object_key(const lept_value *v, size_t index);
+size_t lept_get_object_key_length(const lept_value *v, size_t index);
+lept_value *lept_get_object_value(const lept_value *v, size_t index);
 
 void lept_free(lept_value *v);
 
